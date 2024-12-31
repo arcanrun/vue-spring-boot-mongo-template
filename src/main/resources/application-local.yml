@@ -1,0 +1,17 @@
+spring:
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start_only
+
+mongo-notes:
+  web:
+    cors:
+      allowed-origins: '*'
+      allowed-methods: '*'
+      allowed-headers: '*'
+      exposed-headers: '*'
+  jwt:
+    token:
+      secret: aGVsbG8gaG93IGFyZSB5b3Ugc3ByaW5nIGJvb3Qgc29tZSByYW5kb20gd29yZHMgR2VuZXJpY0ZpbHRlckJlYW4gR2VuZXJpY0ZpbHRlckNvbXBvbmVudCAgMTI4OTM3MTI4OTM4OTEyMzc4OTEyMzkxMjgzNzEyODkwMyA3MTg5MDI3MyAxMjg5MDczODEyNzMwMSA4MjczIDgwMTI3ODAxMjMgNzAtMTI4NzMgODBwZXVkb3BpZmF3c3BvdTgwMTIzMzcwMTIgODcxMjgwaG9xd2hkYWpzaCBkYTAxMjM3dTE4MDI3MzEyODAzbzJpZTgwMTJqZWQwMTJ1ZTAxMjM3ODEyODA3MzEyODB1YW9wc2lkaGphc2tsO2Rhc2tkajAxMjkzdTgxMjAzODAxMjk4MzkwMTI4Mw==
+      validity-period: 300

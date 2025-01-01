@@ -3,6 +3,7 @@ spring:
     compose:
       enabled: true
       lifecycle-management: start_only
+      file: ${ROOT_DIR}/backend/compose.yaml
 
 mongo-notes:
   web:

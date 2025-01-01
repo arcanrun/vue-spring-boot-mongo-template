@@ -1,0 +1,85 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.gorylenko.gradle-git-properties'
+
+ext {
+    springDocVersion = '2.7.0'
+    jjwtVersion = '0.12.6'
+    projectDirectory = rootDir.absolutePath
+}
+
+springBoot {
+    buildInfo()
+}
+
+processResources {
+    // Inject the ROOT_DIR property into application.yml
+    filesMatching("application-local.yml") {
+        expand(ROOT_DIR: projectDirectory)
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:${springDocVersion}"
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    compileOnly 'org.projectlombok:lombok'
+
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mongodb'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'METHOD'
+                value = 'COVEREDRATIO'
+                minimum = 0.5
+            }
+        }
+    }
+}

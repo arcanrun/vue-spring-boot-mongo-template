@@ -15,10 +15,10 @@ import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 @RequestMapping(API_PATH + "/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping("/me")
-    public UserDto getCurrentUser() {
-        return userService.getCurrentUser();
-    }
+  @GetMapping("/me")
+  public UserDto getCurrentUser() {
+    return userService.getCurrentUser();
+  }
 }

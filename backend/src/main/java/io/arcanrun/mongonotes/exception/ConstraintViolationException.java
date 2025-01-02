@@ -1,6 +1,5 @@
 package io.arcanrun.mongonotes.exception;
 
-
 public class ConstraintViolationException extends ApplicationRuntimeException {
 
     public ConstraintViolationException() {

@@ -2,7 +2,6 @@ package io.arcanrun.mongonotes.exception;
 
 import org.apache.commons.lang3.StringUtils;
 
-
 public class ResourceNotFoundException extends ApplicationRuntimeException {
 
     public ResourceNotFoundException() {

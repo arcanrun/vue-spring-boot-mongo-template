@@ -24,51 +24,58 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthenticationService {
-    private final AuthenticationManager authenticationManager;
-    private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
+  private final UserService userService;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final PasswordEncoder passwordEncoder;
 
-    public String authenticate(LoginRequestDto dto) {
-        var user = userService.getBy(dto.username())
-                .orElseThrow(() -> new UnauthorizedException("Invalid username or password"));
+  public String authenticate(LoginRequestDto dto) {
+    var user =
+            userService
+                    .getBy(dto.username())
+                    .orElseThrow(() -> new UnauthorizedException("Invalid username or password"));
 
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.username(), dto.password()));
-        } catch (AuthenticationException e) {
-            throw new UnauthorizedException("Invalid username or password");
-        }
-
-        return jwtTokenProvider.createTokenFor(user);
+    try {
+      authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(dto.username(), dto.password()));
+    } catch (AuthenticationException e) {
+      throw new UnauthorizedException("Invalid username or password");
     }
 
-    public UserDto register(RegisterRequestDto dto) {
-        checkIfUserAlreadyExists(dto);
+    return jwtTokenProvider.createTokenFor(user);
+  }
 
-        return Optional.of(userService
-                        .save(User.builder()
-                                .username(dto.username())
-                                .password(passwordEncoder.encode(dto.password()))
-                                .authorities(Arrays
-                                        .stream(Authority.values())
-                                        .map(a -> (GrantedAuthority) new SimpleGrantedAuthority(a.name()))
-                                        .toList())
-                                .build()))
-                .map(u -> new UserDto(u.getId(), u.getUsername(), u.getAuthorities()))
-                .orElseThrow(() -> new UnauthorizedException("Something went wrong"));
-    }
+  public UserDto register(RegisterRequestDto dto) {
+    checkIfUserAlreadyExists(dto);
 
-    public String refreshToken() {
-        var currentUser = userService.getCurrentUser();
+    return Optional.of(
+                    userService.save(
+                            User.builder()
+                                    .username(dto.username())
+                                    .password(passwordEncoder.encode(dto.password()))
+                                    .authorities(
+                                            Arrays.stream(Authority.values())
+                                                    .map(a -> (GrantedAuthority) new SimpleGrantedAuthority(a.name()))
+                                                    .toList())
+                                    .build()))
+            .map(u -> new UserDto(u.getId(), u.getUsername(), u.getAuthorities()))
+            .orElseThrow(() -> new UnauthorizedException("Something went wrong"));
+  }
 
-        return jwtTokenProvider.createTokenFor(currentUser);
-    }
+  public String refreshToken() {
+    var currentUser = userService.getCurrentUser();
 
-    private void checkIfUserAlreadyExists(RegisterRequestDto dto) {
-        userService.getBy(dto.username())
-                .ifPresent(u -> {
-                    throw new UnauthorizedException("The name `%s` is already taken. Please try other names."
-                            .formatted(u.getUsername()));
-                });
-    }
+    return jwtTokenProvider.createTokenFor(currentUser);
+  }
+
+  private void checkIfUserAlreadyExists(RegisterRequestDto dto) {
+    userService
+            .getBy(dto.username())
+            .ifPresent(
+                    u -> {
+                      throw new UnauthorizedException(
+                              "The name `%s` is already taken. Please try other names."
+                                      .formatted(u.getUsername()));
+                    });
+  }
 }

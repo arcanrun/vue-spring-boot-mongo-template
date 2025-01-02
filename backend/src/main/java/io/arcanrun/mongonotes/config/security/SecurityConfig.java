@@ -45,19 +45,20 @@ import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper,
-                                                   JwtTokenProvider jwtTokenProvider,
-                                                   HandlerExceptionResolver handlerExceptionResolver) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            ObjectMapper objectMapper,
+            JwtTokenProvider jwtTokenProvider,
+            HandlerExceptionResolver handlerExceptionResolver)
+            throws Exception {
+        http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(
                         exceptionHandlingConfigurer ->
                                 exceptionHandlingConfigurer
                                         .accessDeniedHandler(customAccessDeniedHandler(objectMapper))
-                                        .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper))
-                )
+                                        .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper)))
                 .headers(
                         headersConfigurer ->
                                 headersConfigurer.frameOptions(Customizer.withDefaults()).disable())
@@ -67,25 +68,27 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         requests ->
                                 // @formatter:off
-                                requests
-                                        .requestMatchers(API_PATH + "/auth/refresh/**")
-                                            .hasAuthority(Authority.REFRESH_TOKEN.name())
-                                        .requestMatchers(UNPROTECTED_ENDPOINTS)
-                                            .permitAll()
-                                        .anyRequest()
-                                            .authenticated()
-                                )
-                                // @formatter:on
-                .with(new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver), Customizer.withDefaults());
+                requests
+                    .requestMatchers(API_PATH + "/auth/refresh/**")
+                    .hasAuthority(Authority.REFRESH_TOKEN.name())
+                    .requestMatchers(UNPROTECTED_ENDPOINTS)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        // @formatter:on
+                .with(
+                        new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver),
+                        Customizer.withDefaults());
 
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+        return username ->
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     @Bean
@@ -104,8 +107,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

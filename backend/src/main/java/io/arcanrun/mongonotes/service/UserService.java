@@ -15,25 +15,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public UserDto getCurrentUser() {
-        var securityContext = SecurityContextHolder.getContext();
-        var authentication = securityContext.getAuthentication();
-        var principal = (User) authentication.getPrincipal();
+  public UserDto getCurrentUser() {
+    var securityContext = SecurityContextHolder.getContext();
+    var authentication = securityContext.getAuthentication();
+    var principal = (User) authentication.getPrincipal();
 
-        return userRepository.findById(principal.getId())
-                .map(u -> new UserDto(u.getId(), u.getUsername(), u.getAuthorities()))
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
+    return userRepository
+            .findById(principal.getId())
+            .map(u -> new UserDto(u.getId(), u.getUsername(), u.getAuthorities()))
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+  }
 
-    public Optional<User> getBy(String username) {
-        return userRepository.findByUsername(username);
-    }
+  public Optional<User> getBy(String username) {
+    return userRepository.findByUsername(username);
+  }
 
-    @Transactional
-    public User save(User user) {
-        return userRepository.save(user);
-    }
+  @Transactional
+  public User save(User user) {
+    return userRepository.save(user);
+  }
 }
-

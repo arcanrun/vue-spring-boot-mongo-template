@@ -17,7 +17,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-
 @Slf4j
 @Configuration
 @PropertySource("classpath:git.properties")

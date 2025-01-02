@@ -2,7 +2,6 @@ package io.arcanrun.mongonotes.exception;
 
 import lombok.Getter;
 
-
 @Getter
 public class ValidationException extends ApplicationRuntimeException {
 

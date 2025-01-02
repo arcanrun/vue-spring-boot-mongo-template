@@ -1,6 +1,5 @@
 package io.arcanrun.mongonotes.exception;
 
-
 public class BadRequestException extends ApplicationRuntimeException {
 
     public BadRequestException() {

@@ -19,20 +19,20 @@ import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 @RequestMapping(API_PATH + "/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationService authenticationService;
+  private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto dto) {
-        return authenticationService.authenticate(dto);
-    }
+  @PostMapping("/login")
+  public String login(@RequestBody LoginRequestDto dto) {
+    return authenticationService.authenticate(dto);
+  }
 
-    @PostMapping("/signup")
-    public UserDto signup(@RequestBody RegisterRequestDto dto) {
-        return authenticationService.register(dto);
-    }
+  @PostMapping("/signup")
+  public UserDto signup(@RequestBody RegisterRequestDto dto) {
+    return authenticationService.register(dto);
+  }
 
-    @PutMapping("/refresh")
-    public String refresh() {
-        return authenticationService.refreshToken();
-    }
+  @PutMapping("/refresh")
+  public String refresh() {
+    return authenticationService.refreshToken();
+  }
 }

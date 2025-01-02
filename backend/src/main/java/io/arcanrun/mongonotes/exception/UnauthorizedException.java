@@ -1,6 +1,5 @@
 package io.arcanrun.mongonotes.exception;
 
-
 public class UnauthorizedException extends ApplicationRuntimeException {
 
     public UnauthorizedException() {

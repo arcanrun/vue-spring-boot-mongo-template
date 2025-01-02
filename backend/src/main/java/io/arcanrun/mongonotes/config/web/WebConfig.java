@@ -26,64 +26,63 @@ import java.util.List;
 @EnableConfigurationProperties(WebConfigProperties.class)
 public class WebConfig implements WebMvcConfigurer {
 
-    private final WebConfigProperties webConfigProperties;
-    private static final List<String> ALL = List.of(CorsConfiguration.ALL);
+  private final WebConfigProperties webConfigProperties;
+  private static final List<String> ALL = List.of(CorsConfiguration.ALL);
 
+  private final LoggingInterceptor loggingInterceptor;
 
-    private final LoggingInterceptor loggingInterceptor;
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(loggingInterceptor);
+  }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor);
-    }
+  /**
+   * Configures CORS settings for the application.
+   *
+   * @return A WebMvcConfigurer with CORS configuration.
+   */
+  @Bean
+  public WebMvcConfigurer corsMappingConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry
+                .addMapping("/**")
+                .allowedOrigins(webConfigProperties.getAllowedOrigins())
+                .allowedMethods(webConfigProperties.getAllowedMethods())
+                .allowedHeaders(ALL.toArray(String[]::new))
+                .maxAge(webConfigProperties.getMaxAge())
+                .exposedHeaders(webConfigProperties.getExposedHeaders());
+      }
+    };
+  }
 
-    /**
-     * Configures CORS settings for the application.
-     *
-     * @return A WebMvcConfigurer with CORS configuration.
-     */
-    @Bean
-    public WebMvcConfigurer corsMappingConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry
-                        .addMapping("/**")
-                        .allowedOrigins(webConfigProperties.getAllowedOrigins())
-                        .allowedMethods(webConfigProperties.getAllowedMethods())
-                        .allowedHeaders(ALL.toArray(String[]::new))
-                        .maxAge(webConfigProperties.getMaxAge())
-                        .exposedHeaders(webConfigProperties.getExposedHeaders());
-            }
-        };
-    }
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    var converter = new MappingJackson2HttpMessageConverter();
+    var objectMapper = new ObjectMapper();
 
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        var converter = new MappingJackson2HttpMessageConverter();
-        var objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    converter.setObjectMapper(objectMapper);
+    converters.add(byteArrayHttpMessageConverter());
+    converters.add(stringHttpMessageConverter());
+    converters.add(converter);
+  }
 
-        converter.setObjectMapper(objectMapper);
-        converters.add(byteArrayHttpMessageConverter());
-        converters.add(stringHttpMessageConverter());
-        converters.add(converter);
-    }
+  private StringHttpMessageConverter stringHttpMessageConverter() {
+    var messageConverter = new StringHttpMessageConverter();
+    messageConverter.setSupportedMediaTypes(
+            List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
+    return messageConverter;
+  }
 
-    private StringHttpMessageConverter stringHttpMessageConverter() {
-        var messageConverter = new StringHttpMessageConverter();
-        messageConverter.setSupportedMediaTypes(
-                List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
-        return messageConverter;
-    }
-
-    private ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
-        return new ByteArrayHttpMessageConverter();
-    }
+  private ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
+    return new ByteArrayHttpMessageConverter();
+  }
 }

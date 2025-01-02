@@ -27,66 +27,65 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    private static final String AUTHORITIES_CLAIM = "authorities";
-    private static final String USERNAME_CLAIM = "username";
+  private static final String AUTHORITIES_CLAIM = "authorities";
+  private static final String USERNAME_CLAIM = "username";
 
-    @Value("${mongo-notes.jwt.token.secret}")
-    private final String secret;
+  @Value("${mongo-notes.jwt.token.secret}")
+  private final String secret;
 
-    @Value("${mongo-notes.jwt.token.validity-period}")
-    private final Integer validityInSeconds;
+  @Value("${mongo-notes.jwt.token.validity-period}")
+  private final Integer validityInSeconds;
 
-    private final UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
 
-    public String createTokenFor(User user) {
-        return doCreateToken(user.getId(), user.getUsername(), user.getAuthorities());
+  public String createTokenFor(User user) {
+    return doCreateToken(user.getId(), user.getUsername(), user.getAuthorities());
+  }
+
+  public String createTokenFor(UserDto user) {
+    return doCreateToken(user.id(), user.name(), user.authorities());
+  }
+
+  public Authentication buildAuthentication(@NonNull String token) {
+    var claims = parseAndValidateToken(token);
+    var user = userDetailsService.loadUserByUsername(claims.get(USERNAME_CLAIM).toString());
+
+    return new UsernamePasswordAuthenticationToken(user, token, user.getAuthorities());
+  }
+
+  private String doCreateToken(
+          String userId, String username, List<GrantedAuthority> grantedAuthorities) {
+    return Jwts.builder()
+            .subject(userId)
+            .claim(USERNAME_CLAIM, username)
+            .claim(AUTHORITIES_CLAIM, grantedAuthorities)
+            .issuedAt(new Date())
+            .expiration(
+                    new Date(TimeUnit.SECONDS.toMillis(validityInSeconds) + System.currentTimeMillis()))
+            .signWith(buildSecretKey(), Jwts.SIG.HS512)
+            .compact();
+  }
+
+  private SecretKey buildSecretKey() {
+    var bytesFromSecret = Decoders.BASE64.decode(secret);
+
+    return Keys.hmacShaKeyFor(bytesFromSecret);
+  }
+
+  private Claims parseAndValidateToken(String token) {
+    Claims claims;
+
+    try {
+      claims =
+              Jwts.parser().verifyWith(buildSecretKey()).build().parseSignedClaims(token).getPayload();
+    } catch (ExpiredJwtException e) {
+      log.error(e.getMessage(), e);
+
+      throw new AccessDeniedException("Expired or invalid JWT token");
+    } catch (Exception e) {
+      throw new AccessDeniedException("Invalid JWT token");
     }
 
-    public String createTokenFor(UserDto user) {
-        return doCreateToken(user.id(), user.name(), user.authorities());
-    }
-
-    public Authentication buildAuthentication(@NonNull String token) {
-        var claims = parseAndValidateToken(token);
-        var user = userDetailsService.loadUserByUsername(claims.get(USERNAME_CLAIM).toString());
-
-        return new UsernamePasswordAuthenticationToken(user, token, user.getAuthorities());
-    }
-
-    private String doCreateToken(String userId, String username, List<GrantedAuthority> grantedAuthorities) {
-        return Jwts.builder()
-                .subject(userId)
-                .claim(USERNAME_CLAIM, username)
-                .claim(AUTHORITIES_CLAIM, grantedAuthorities)
-                .issuedAt(new Date())
-                .expiration(new Date(TimeUnit.SECONDS.toMillis(validityInSeconds) + System.currentTimeMillis()))
-                .signWith(buildSecretKey(), Jwts.SIG.HS512)
-                .compact();
-    }
-
-    private SecretKey buildSecretKey() {
-        var bytesFromSecret = Decoders.BASE64.decode(secret);
-
-        return Keys.hmacShaKeyFor(bytesFromSecret);
-    }
-
-    private Claims parseAndValidateToken(String token) {
-        Claims claims;
-
-        try {
-            claims = Jwts.parser()
-                    .verifyWith(buildSecretKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (ExpiredJwtException e) {
-            log.error(e.getMessage(), e);
-
-            throw new AccessDeniedException("Expired or invalid JWT token");
-        } catch (Exception e) {
-            throw new AccessDeniedException("Invalid JWT token");
-        }
-
-        return claims;
-    }
+    return claims;
+  }
 }

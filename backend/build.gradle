@@ -70,7 +70,9 @@ dependencies {
 
 spotless {
 	// optional: limit format enforcement to just the files changed by this feature branch
-	ratchetFrom 'origin/main'
+	// If your project is not currently enforcing formatting, then it can be a noisy transition. Having a giant commit
+	// where every single file gets changed makes the history harder to read. To address this, you can use the ratchet feature:
+//	ratchetFrom 'origin/main'
 
 	format 'misc', {
 		// define the files to apply `misc` to
@@ -98,15 +100,18 @@ tasks.named('test') {
 }
 
 tasks.named('build') {
+	dependsOn 'spotlessApply'
 	dependsOn 'spotlessCheck'
 }
 
 tasks.named('test') {
+	dependsOn 'spotlessApply'
 	dependsOn 'spotlessCheck'
 	useJUnitPlatform()
 }
 
 tasks.named('bootJar') {
+	dependsOn 'spotlessApply'
 	dependsOn 'spotlessCheck'
 }
 

@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -27,28 +26,30 @@ public class JwtTokenFilter extends GenericFilterBean {
 
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
         var request = (HttpServletRequest) servletRequest;
         var response = (HttpServletResponse) servletResponse;
+        var jwtTokenOptional = extractJwtFrom(request);
 
-        extractJwtFrom(request)
-                .ifPresent(token -> {
-                    Authentication authentication;
+        if (jwtTokenOptional.isEmpty()) {
+            filterChain.doFilter(request, response);
 
-                    try {
-                        authentication = jwtTokenProvider.buildAuthentication(token);
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
+            return;
+        }
 
-                    } catch (Exception e) {
-                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                        response.setStatus(HttpStatus.FORBIDDEN.value());
-                        handlerExceptionResolver.resolveException(request, response, null, e);
-                    }
+        try {
+            var authentication = jwtTokenProvider.buildAuthentication(jwtTokenOptional.get());
 
-                });
-
-        filterChain.doFilter(servletRequest, servletResponse);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            handlerExceptionResolver.resolveException(request, response, null, e);
+        }
     }
+
 
     private Optional<String> extractJwtFrom(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER_KEY))

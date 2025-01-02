@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 
-@Tag(name = "Authentication controller")
+@Tag(name = "User controller")
 @RestController
 @RequestMapping(API_PATH + "/users")
 @RequiredArgsConstructor

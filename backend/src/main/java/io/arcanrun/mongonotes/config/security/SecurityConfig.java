@@ -44,30 +44,30 @@ import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            ObjectMapper objectMapper,
-            JwtTokenProvider jwtTokenProvider,
-            HandlerExceptionResolver handlerExceptionResolver)
-            throws Exception {
-        http.cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .exceptionHandling(
-                        exceptionHandlingConfigurer ->
-                                exceptionHandlingConfigurer
-                                        .accessDeniedHandler(customAccessDeniedHandler(objectMapper))
-                                        .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper)))
-                .headers(
-                        headersConfigurer ->
-                                headersConfigurer.frameOptions(Customizer.withDefaults()).disable())
-                .sessionManagement(
-                        sessionManagementConfigurer ->
-                                sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        requests ->
-                                // @formatter:off
+  @Bean
+  public SecurityFilterChain securityFilterChain(
+          HttpSecurity http,
+          ObjectMapper objectMapper,
+          JwtTokenProvider jwtTokenProvider,
+          HandlerExceptionResolver handlerExceptionResolver)
+          throws Exception {
+    http.cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .exceptionHandling(
+                    exceptionHandlingConfigurer ->
+                            exceptionHandlingConfigurer
+                                    .accessDeniedHandler(customAccessDeniedHandler(objectMapper))
+                                    .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper)))
+            .headers(
+                    headersConfigurer ->
+                            headersConfigurer.frameOptions(Customizer.withDefaults()).disable())
+            .sessionManagement(
+                    sessionManagementConfigurer ->
+                            sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(
+                    requests ->
+                            // @formatter:off
                 requests
                     .requestMatchers(API_PATH + "/auth/refresh/**")
                     .hasAuthority(Authority.REFRESH_TOKEN.name())
@@ -76,72 +76,72 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated())
         // @formatter:on
-                .with(
-                        new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver),
-                        Customizer.withDefaults());
+            .with(
+                    new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver),
+                    Customizer.withDefaults());
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username ->
-                userRepository
-                        .findByUsername(username)
-                        .orElseThrow(() -> new UsernameNotFoundException(username));
-    }
+  @Bean
+  public UserDetailsService userDetailsService(UserRepository userRepository) {
+    return username ->
+            userRepository
+                    .findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException(username));
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(12);
+  }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-        var authProvider = new DaoAuthenticationProvider();
+  @Bean
+  public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+    var authProvider = new DaoAuthenticationProvider();
 
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+    authProvider.setUserDetailsService(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
 
-        return authProvider;
-    }
+    return authProvider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(
+          AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
+  }
 
-    @Bean
-    public AuthenticationEntryPoint customAuthenticationEntryPoint(ObjectMapper objectMapper) {
-        return (request, response, authException) -> {
-            var apiError =
-                    new ApiErrorDto(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), authException.getMessage());
-            var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
+  @Bean
+  public AuthenticationEntryPoint customAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    return (request, response, authException) -> {
+      var apiError =
+              new ApiErrorDto(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), authException.getMessage());
+      var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-            response.getWriter().write(apiErrorRepresentation);
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+      response.getWriter().write(apiErrorRepresentation);
 
-            log.error(apiErrorRepresentation);
-        };
-    }
+      log.error(apiErrorRepresentation);
+    };
+  }
 
-    @Bean
-    public AccessDeniedHandler customAccessDeniedHandler(ObjectMapper objectMapper) {
-        return (request, response, accessDeniedException) -> {
-            var apiError =
-                    new ApiErrorDto(
-                            HttpStatus.FORBIDDEN, LocalDateTime.now(), accessDeniedException.getMessage());
-            var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
+  @Bean
+  public AccessDeniedHandler customAccessDeniedHandler(ObjectMapper objectMapper) {
+    return (request, response, accessDeniedException) -> {
+      var apiError =
+              new ApiErrorDto(
+                      HttpStatus.FORBIDDEN, LocalDateTime.now(), accessDeniedException.getMessage());
+      var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
 
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-            response.getWriter().write(apiErrorRepresentation);
+      response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+      response.getWriter().write(apiErrorRepresentation);
 
-            log.error(apiErrorRepresentation);
-        };
-    }
+      log.error(apiErrorRepresentation);
+    };
+  }
 }

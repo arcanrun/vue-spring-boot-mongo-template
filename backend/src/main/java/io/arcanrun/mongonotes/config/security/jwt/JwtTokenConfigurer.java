@@ -10,13 +10,13 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @RequiredArgsConstructor
 public class JwtTokenConfigurer
         extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final HandlerExceptionResolver handlerExceptionResolver;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final HandlerExceptionResolver handlerExceptionResolver;
 
-    @Override
-    public void configure(HttpSecurity builder) throws Exception {
-        builder.addFilterBefore(
-                new JwtTokenFilter(jwtTokenProvider, handlerExceptionResolver),
-                UsernamePasswordAuthenticationFilter.class);
-    }
+  @Override
+  public void configure(HttpSecurity builder) throws Exception {
+    builder.addFilterBefore(
+            new JwtTokenFilter(jwtTokenProvider, handlerExceptionResolver),
+            UsernamePasswordAuthenticationFilter.class);
+  }
 }

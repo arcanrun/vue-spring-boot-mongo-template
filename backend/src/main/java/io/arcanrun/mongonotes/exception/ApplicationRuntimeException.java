@@ -5,8 +5,7 @@ package io.arcanrun.mongonotes.exception;
  */
 public class ApplicationRuntimeException extends RuntimeException {
 
-  public ApplicationRuntimeException() {
-  }
+  public ApplicationRuntimeException() {}
 
   public ApplicationRuntimeException(final String message) {
     super(message);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %green(%d{ISO8601}) [%blue(%t)] [%highlight(%-5level)] %yellow(%logger{36}): %boldBlue(%X{request_id})
+                [%magenta(%X{request_resource_method})] %cyan(%X{request_resource_uri}) - %msg%n%red(%throwable)
+            </Pattern>
+        </layout>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+</configuration>

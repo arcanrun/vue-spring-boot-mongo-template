@@ -1,85 +1,37 @@
-<script setup lang="ts">
-import {RouterLink, RouterView} from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125"/>
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!"/>
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+  <AmOverlayLoader v-if="loader.isOverlayLoader"/>
+  <div v-else class="flex">
+    <AmDrawer/>
+    <AmHeader/>
+    <AmToastContainer/>
+    <div :class="classes">
+      <router-view v-slot="{ Component, route }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" :key="route.name"/>
+        </transition>
+      </router-view>
     </div>
-  </header>
-
-  <RouterView/>
+  </div>
 </template>
+<script setup lang="ts">
+import {RouterView} from 'vue-router'
+import {AmToastContainer} from "@/components/Toast";
+import {useLoaderStore} from "@/stores/loader.ts";
+import AmOverlayLoader from "@/components/Loader/AmOverlayLoader.vue";
+import AmHeader from "@/components/Header/AmHeader.vue";
+import AmDrawer from "@/components/Drawer/AmDrawer.vue";
+import {computed} from "vue";
+import {useUserStore} from "@/stores/user.ts";
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+const user = useUserStore();
+const loader = useLoaderStore();
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+const classes = computed(() => {
+    if (user.state.isAuthenticated) {
+      return 'flex-1 mt-24'
+    }
+    return 'flex-1'
   }
+)
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+</script>

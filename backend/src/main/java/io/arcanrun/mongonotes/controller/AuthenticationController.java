@@ -1,5 +1,7 @@
 package io.arcanrun.mongonotes.controller;
 
+import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
+
 import io.arcanrun.mongonotes.dto.LoginRequestDto;
 import io.arcanrun.mongonotes.dto.RegisterRequestDto;
 import io.arcanrun.mongonotes.dto.UserDto;
@@ -11,8 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
 
 @Tag(name = "Authentication controller")
 @RestController

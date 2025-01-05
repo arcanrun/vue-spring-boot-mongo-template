@@ -2,12 +2,11 @@ package io.arcanrun.mongonotes.config.logging;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -32,7 +31,7 @@ public class LoggingService {
   }
 
   public void displayResponse(
-          HttpServletRequest request, HttpServletResponse response, Object body) {
+      HttpServletRequest request, HttpServletResponse response, Object body) {
     var respMessage = new StringBuilder();
     var headers = getHeaders(response);
 

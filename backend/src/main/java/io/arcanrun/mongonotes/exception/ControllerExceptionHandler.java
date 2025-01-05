@@ -2,6 +2,7 @@ package io.arcanrun.mongonotes.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,15 +15,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @ControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<Object> handleConstraintViolationException(
-          final ConstraintViolationException exception) {
+      final ConstraintViolationException exception) {
     return buildResponseEntity(exception, HttpStatus.BAD_REQUEST);
   }
 
@@ -38,7 +37,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<Object> handleResourceNotFoundException(
-          final ResourceNotFoundException exception) {
+      final ResourceNotFoundException exception) {
     return buildResponseEntity(exception, HttpStatus.NOT_FOUND);
   }
 
@@ -59,42 +58,42 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-          MethodArgumentNotValidException ex,
-          HttpHeaders headers,
-          HttpStatusCode status,
-          WebRequest request) {
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     log.error(ex.getMessage(), ex);
 
     var errors =
-            ex.getBindingResult().getFieldErrors().stream()
-                    .map(
-                            error -> {
-                              var field = error.getField();
-                              var message =
-                                      error.getDefaultMessage() == null
-                                              ? null
-                                              : String.format(error.getDefaultMessage(), error.getField());
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(
+                error -> {
+                  var field = error.getField();
+                  var message =
+                      error.getDefaultMessage() == null
+                          ? null
+                          : String.format(error.getDefaultMessage(), error.getField());
 
-                              return String.format("%s: %s", field, message);
-                            })
-                    .toList();
+                  return String.format("%s: %s", field, message);
+                })
+            .toList();
     var exceptionMessage = String.format("%s", String.join(",", errors));
     var apiError =
-            ApiErrorDto.builder()
-                    .message(exceptionMessage)
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .timestamp(LocalDateTime.now())
-                    .build();
+        ApiErrorDto.builder()
+            .message(exceptionMessage)
+            .httpStatus(HttpStatus.BAD_REQUEST)
+            .timestamp(LocalDateTime.now())
+            .build();
 
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
   @Override
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
-          HttpMessageNotReadableException ex,
-          HttpHeaders headers,
-          HttpStatusCode status,
-          WebRequest request) {
+      HttpMessageNotReadableException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     log.error(ex.getMessage(), ex);
 
     var errorMessage = ex.getMessage();
@@ -107,11 +106,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     var apiError =
-            ApiErrorDto.builder()
-                    .message(errorMessage)
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .timestamp(LocalDateTime.now())
-                    .build();
+        ApiErrorDto.builder()
+            .message(errorMessage)
+            .httpStatus(HttpStatus.BAD_REQUEST)
+            .timestamp(LocalDateTime.now())
+            .build();
 
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
@@ -120,11 +119,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     log.error(e.getMessage(), e);
 
     var apiError =
-            ApiErrorDto.builder()
-                    .message(e.getMessage())
-                    .httpStatus(badRequest)
-                    .timestamp(LocalDateTime.now())
-                    .build();
+        ApiErrorDto.builder()
+            .message(e.getMessage())
+            .httpStatus(badRequest)
+            .timestamp(LocalDateTime.now())
+            .build();
 
     return new ResponseEntity<>(apiError, apiError.getHttpStatus());
   }

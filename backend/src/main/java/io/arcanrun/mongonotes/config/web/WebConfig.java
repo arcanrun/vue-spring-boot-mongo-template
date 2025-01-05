@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.arcanrun.mongonotes.config.logging.LoggingInterceptor;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -48,12 +47,12 @@ public class WebConfig implements WebMvcConfigurer {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry
-                .addMapping("/**")
-                .allowedOrigins(webConfigProperties.getAllowedOrigins())
-                .allowedMethods(webConfigProperties.getAllowedMethods())
-                .allowedHeaders(ALL.toArray(String[]::new))
-                .maxAge(webConfigProperties.getMaxAge())
-                .exposedHeaders(webConfigProperties.getExposedHeaders());
+            .addMapping("/**")
+            .allowedOrigins(webConfigProperties.getAllowedOrigins())
+            .allowedMethods(webConfigProperties.getAllowedMethods())
+            .allowedHeaders(ALL.toArray(String[]::new))
+            .maxAge(webConfigProperties.getMaxAge())
+            .exposedHeaders(webConfigProperties.getExposedHeaders());
       }
     };
   }
@@ -79,7 +78,7 @@ public class WebConfig implements WebMvcConfigurer {
   private StringHttpMessageConverter stringHttpMessageConverter() {
     var messageConverter = new StringHttpMessageConverter();
     messageConverter.setSupportedMediaTypes(
-            List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
+        List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
     return messageConverter;
   }
 

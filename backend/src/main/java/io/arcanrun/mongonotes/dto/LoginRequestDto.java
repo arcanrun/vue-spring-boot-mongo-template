@@ -1,4 +1,3 @@
 package io.arcanrun.mongonotes.dto;
 
-public record LoginRequestDto(String username, String password) {
-}
+public record LoginRequestDto(String username, String password) {}

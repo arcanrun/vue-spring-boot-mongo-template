@@ -1,11 +1,16 @@
 package io.arcanrun.mongonotes.config.security;
 
+import static io.arcanrun.mongonotes.config.security.SecurityConstant.UNPROTECTED_ENDPOINTS;
+import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arcanrun.mongonotes.config.security.jwt.JwtTokenConfigurer;
 import io.arcanrun.mongonotes.config.security.jwt.JwtTokenProvider;
 import io.arcanrun.mongonotes.exception.ApiErrorDto;
 import io.arcanrun.mongonotes.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -31,12 +36,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-
-import static io.arcanrun.mongonotes.config.security.SecurityConstant.UNPROTECTED_ENDPOINTS;
-import static io.arcanrun.mongonotes.util.RestConstant.API_PATH;
-
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -46,28 +45,28 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(
-          HttpSecurity http,
-          ObjectMapper objectMapper,
-          JwtTokenProvider jwtTokenProvider,
-          HandlerExceptionResolver handlerExceptionResolver)
-          throws Exception {
+      HttpSecurity http,
+      ObjectMapper objectMapper,
+      JwtTokenProvider jwtTokenProvider,
+      HandlerExceptionResolver handlerExceptionResolver)
+      throws Exception {
     http.cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .exceptionHandling(
-                    exceptionHandlingConfigurer ->
-                            exceptionHandlingConfigurer
-                                    .accessDeniedHandler(customAccessDeniedHandler(objectMapper))
-                                    .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper)))
-            .headers(
-                    headersConfigurer ->
-                            headersConfigurer.frameOptions(Customizer.withDefaults()).disable())
-            .sessionManagement(
-                    sessionManagementConfigurer ->
-                            sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(
-                    requests ->
-                            // @formatter:off
+        .csrf(AbstractHttpConfigurer::disable)
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .exceptionHandling(
+            exceptionHandlingConfigurer ->
+                exceptionHandlingConfigurer
+                    .accessDeniedHandler(customAccessDeniedHandler(objectMapper))
+                    .authenticationEntryPoint(customAuthenticationEntryPoint(objectMapper)))
+        .headers(
+            headersConfigurer ->
+                headersConfigurer.frameOptions(Customizer.withDefaults()).disable())
+        .sessionManagement(
+            sessionManagementConfigurer ->
+                sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            requests ->
+                // @formatter:off
                 requests
                     .requestMatchers(API_PATH + "/auth/refresh/**")
                     .hasAuthority(Authority.REFRESH_TOKEN.name())
@@ -76,9 +75,9 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated())
         // @formatter:on
-            .with(
-                    new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver),
-                    Customizer.withDefaults());
+        .with(
+            new JwtTokenConfigurer(jwtTokenProvider, handlerExceptionResolver),
+            Customizer.withDefaults());
 
     return http.build();
   }
@@ -86,9 +85,9 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService(UserRepository userRepository) {
     return username ->
-            userRepository
-                    .findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException(username));
+        userRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(username));
   }
 
   @Bean
@@ -108,7 +107,7 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationManager authenticationManager(
-          AuthenticationConfiguration authenticationConfiguration) throws Exception {
+      AuthenticationConfiguration authenticationConfiguration) throws Exception {
     return authenticationConfiguration.getAuthenticationManager();
   }
 
@@ -116,7 +115,7 @@ public class SecurityConfig {
   public AuthenticationEntryPoint customAuthenticationEntryPoint(ObjectMapper objectMapper) {
     return (request, response, authException) -> {
       var apiError =
-              new ApiErrorDto(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), authException.getMessage());
+          new ApiErrorDto(HttpStatus.UNAUTHORIZED, LocalDateTime.now(), authException.getMessage());
       var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
 
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -132,8 +131,8 @@ public class SecurityConfig {
   public AccessDeniedHandler customAccessDeniedHandler(ObjectMapper objectMapper) {
     return (request, response, accessDeniedException) -> {
       var apiError =
-              new ApiErrorDto(
-                      HttpStatus.FORBIDDEN, LocalDateTime.now(), accessDeniedException.getMessage());
+          new ApiErrorDto(
+              HttpStatus.FORBIDDEN, LocalDateTime.now(), accessDeniedException.getMessage());
       var apiErrorRepresentation = objectMapper.writeValueAsString(apiError);
 
       response.setStatus(HttpServletResponse.SC_FORBIDDEN);

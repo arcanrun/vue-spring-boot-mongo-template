@@ -6,15 +6,14 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class JwtTokenFilter extends GenericFilterBean {
@@ -26,8 +25,8 @@ public class JwtTokenFilter extends GenericFilterBean {
 
   @Override
   public void doFilter(
-          ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-          throws IOException, ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      throws IOException, ServletException {
     var request = (HttpServletRequest) servletRequest;
     var response = (HttpServletResponse) servletResponse;
     var jwtTokenOptional = extractJwtFrom(request);
@@ -45,14 +44,14 @@ public class JwtTokenFilter extends GenericFilterBean {
       filterChain.doFilter(request, response);
     } catch (Exception e) {
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response.setStatus(HttpStatus.FORBIDDEN.value());
+      response.setStatus(HttpStatus.UNAUTHORIZED.value());
       handlerExceptionResolver.resolveException(request, response, null, e);
     }
   }
 
   private Optional<String> extractJwtFrom(HttpServletRequest request) {
     return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER_KEY))
-            .filter(header -> header.startsWith(BEARER_HEADER_PREFIX))
-            .map(header -> header.substring(BEARER_HEADER_PREFIX.length()));
+        .filter(header -> header.startsWith(BEARER_HEADER_PREFIX))
+        .map(header -> header.substring(BEARER_HEADER_PREFIX.length()));
   }
 }

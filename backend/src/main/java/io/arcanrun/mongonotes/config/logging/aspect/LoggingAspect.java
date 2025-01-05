@@ -1,12 +1,11 @@
 package io.arcanrun.mongonotes.config.logging.aspect;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Slf4j
 @Aspect
@@ -31,12 +30,12 @@ public class LoggingAspect {
       var cause = e.getCause() == null ? "_" : e.getCause();
 
       log.error(
-              "[EXCEPTION]: {}({}) | Cause = {} | Exception = {} ",
-              methodName,
-              args,
-              cause,
-              e.getMessage(),
-              e);
+          "[EXCEPTION]: {}({}) | Cause = {} | Exception = {} ",
+          methodName,
+          args,
+          cause,
+          e.getMessage(),
+          e);
 
       throw e;
     }

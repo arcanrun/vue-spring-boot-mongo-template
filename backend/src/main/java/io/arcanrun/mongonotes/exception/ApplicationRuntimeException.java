@@ -1,8 +1,6 @@
 package io.arcanrun.mongonotes.exception;
 
-/**
- * Custom runtime exception specific to the application. Extends {@link RuntimeException}.
- */
+/** Custom runtime exception specific to the application. Extends {@link RuntimeException}. */
 public class ApplicationRuntimeException extends RuntimeException {
 
   public ApplicationRuntimeException() {}

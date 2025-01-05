@@ -12,16 +12,13 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "mongo-notes.web.cors", ignoreUnknownFields = false)
 public class WebConfigProperties {
 
-    @NotEmpty
-    private String[] allowedOrigins;
+  @NotEmpty private String[] allowedOrigins;
 
-    @NotEmpty
-    private String[] allowedMethods;
+  @NotEmpty private String[] allowedMethods;
 
-    @NotEmpty
-    private String[] allowedHeaders;
+  @NotEmpty private String[] allowedHeaders;
 
-    private String[] exposedHeaders;
+  private String[] exposedHeaders;
 
-    private long maxAge;
+  private long maxAge;
 }

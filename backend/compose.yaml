@@ -7,22 +7,22 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - mongo-notes-volume:/data/db
+      - vue-spring-boot-mongo-template-volume:/data/db
     networks:
-      - mongo-notes-network
+      - vue-spring-boot-mongo-template-network
   mongo-express:
     image: 'mongo-express:latest'
     ports:
       - '8081:8081'
     networks:
-      - mongo-notes-network
+      - vue-spring-boot-mongo-template-network
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: admin
       ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongodb:27017/?authSource=admin
 volumes:
-  mongo-notes-volume:
+  vue-spring-boot-mongo-template-volume:
 
 networks:
-  mongo-notes-network:
+  vue-spring-boot-mongo-template-network:
     driver: bridge

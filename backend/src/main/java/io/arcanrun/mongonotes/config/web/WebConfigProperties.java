@@ -9,7 +9,9 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @Validated
-@ConfigurationProperties(prefix = "mongo-notes.web.cors", ignoreUnknownFields = false)
+@ConfigurationProperties(
+    prefix = "vue-spring-boot-mongo-template.web.cors",
+    ignoreUnknownFields = false)
 public class WebConfigProperties {
 
   @NotEmpty private String[] allowedOrigins;

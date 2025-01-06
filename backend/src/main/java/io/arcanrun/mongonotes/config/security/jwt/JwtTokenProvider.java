@@ -28,10 +28,10 @@ public class JwtTokenProvider {
   private static final String AUTHORITIES_CLAIM = "authorities";
   private static final String USERNAME_CLAIM = "username";
 
-  @Value("${mongo-notes.jwt.token.secret}")
+  @Value("${vue-spring-boot-mongo-template.jwt.token.secret}")
   private final String secret;
 
-  @Value("${mongo-notes.jwt.token.validity-period}")
+  @Value("${vue-spring-boot-mongo-template.jwt.token.validity-period}")
   private final Integer validityInSeconds;
 
   private final UserDetailsService userDetailsService;

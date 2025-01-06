@@ -5,7 +5,7 @@ spring:
       lifecycle-management: start_only
       file: ${ROOT_DIR}/backend/compose.yaml
 
-mongo-notes:
+vue-spring-boot-mongo-template:
   web:
     cors:
       allowed-origins: '*'

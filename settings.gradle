@@ -1,4 +1,4 @@
-rootProject.name = 'mongo-notes'
+rootProject.name = 'vue-spring-boot-mongo-template'
 
 include 'backend'
 include 'frontend'

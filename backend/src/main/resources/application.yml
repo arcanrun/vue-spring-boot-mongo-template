@@ -19,11 +19,16 @@ spring:
 logging:
   level:
     org:
+      mongodb:
+        driver: DEBUG
       springframework:
         data:
           mongodb:
+            MongoTransactionManager: DEBUG
             core:
-              MongoTemplate: DEBUG
+              MongoTemplate: TRACE
+            convert:
+              DefaultDbRefResolver: TRACE
 
 springdoc:
   swagger-ui:

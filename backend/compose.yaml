@@ -1,15 +1,65 @@
 services:
+
   mongodb:
     image: 'mongo:latest'
+    entrypoint: >
+      /bin/bash -c '
+        echo "Checking for keyfile..." &&
+        if [ ! -f /data/keyfile.key ]; then
+          echo "Keyfile not found, generating..." &&
+          if openssl rand -base64 756 > /data/keyfile.key; then
+            chmod 400 /data/keyfile.key &&
+            chown mongodb:mongodb /data/keyfile.key &&
+            echo "Keyfile generated successfully."
+          else
+            echo "Error generating keyfile." &&
+            exit 1
+          fi
+        else
+          echo "Keyfile already exists."
+        fi &&
+        # Start the MongoDB instance with replica set configuration
+
+        /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --keyFile /data/keyfile.key --bind_ip_all
+      '
     environment:
-      - 'MONGO_INITDB_ROOT_USERNAME=admin'
-      - 'MONGO_INITDB_ROOT_PASSWORD=admin'
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
     ports:
       - '27017:27017'
     volumes:
       - vue-spring-boot-mongo-template-volume:/data/db
     networks:
       - vue-spring-boot-mongo-template-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/admin --quiet
+      interval: 2s
+      timeout: 3s
+      retries: 5
+    labels:
+      org.springframework.boot.ignore: true # https://docs.spring.io/spring-boot/docs/3.1.0/reference/html/features.html#features.docker-compose.skipping
+
+  mongo-init:
+    image: 'mongo:latest'
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - vue-spring-boot-mongo-template-network
+    command: >
+      mongosh --host mongodb:27017 --username admin --password admin --eval
+      '
+      rs.initiate( {
+         _id : "rs0",
+         members: [
+            { _id: 0, host: "mongodb:27017" }
+         ]
+      })
+      '
+    labels:
+      org.springframework.boot.ignore: true # https://docs.spring.io/spring-boot/docs/3.1.0/reference/html/features.html#features.docker-compose.skipping
+
   mongo-express:
     image: 'mongo-express:latest'
     ports:
@@ -17,9 +67,10 @@ services:
     networks:
       - vue-spring-boot-mongo-template-network
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-      ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongodb:27017/?authSource=admin
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongodb:27017/?authSource=admin&replicaSet=rs0
+    labels:
+      org.springframework.boot.ignore: true # https://docs.spring.io/spring-boot/docs/3.1.0/reference/html/features.html#features.docker-compose.skipping
+
 volumes:
   vue-spring-boot-mongo-template-volume:
 

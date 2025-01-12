@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,9 +49,9 @@ public class JwtTokenProvider {
   }
 
   private String doCreateToken(
-      String userId, String username, List<GrantedAuthority> grantedAuthorities) {
+      ObjectId userId, String username, List<GrantedAuthority> grantedAuthorities) {
     return Jwts.builder()
-        .subject(userId)
+        .subject(userId.toString())
         .claim(USERNAME_CLAIM, username)
         .claim(AUTHORITIES_CLAIM, grantedAuthorities)
         .issuedAt(new Date())

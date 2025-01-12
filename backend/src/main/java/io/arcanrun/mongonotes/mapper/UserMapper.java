@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Mapper
 public interface UserMapper {
+  @Mapping(target = "id", expression = "java(source.getId().toString())")
   @Mapping(target = "authorities", qualifiedByName = "toAuthoritiesStringList")
   @Mapping(target = "name", source = "username")
   UserDto toDto(User source);

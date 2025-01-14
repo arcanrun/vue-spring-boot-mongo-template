@@ -6,7 +6,7 @@
     <AmToastContainer/>
     <div :class="classes">
       <router-view v-slot="{ Component, route }">
-        <transition name="fade" mode="out-in">
+        <transition name="fade" mode="out-in" v-if="Component">
           <component :is="Component" :key="route.name"/>
         </transition>
       </router-view>

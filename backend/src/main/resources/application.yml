@@ -27,9 +27,10 @@ logging:
             MongoTransactionManager: DEBUG
             core:
               MongoTemplate: TRACE
+              index:
+                MongoPersistentEntityIndexCreator: DEBUG
             convert:
               DefaultDbRefResolver: TRACE
-
 springdoc:
   swagger-ui:
     path: /swagger-ui

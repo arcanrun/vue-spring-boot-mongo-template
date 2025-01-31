@@ -1,6 +1,7 @@
 <template>
   <AmOverlayLoader v-if="loader.isOverlayLoader"/>
   <div v-else class="flex">
+    <AmSearchBar/>
     <AmDrawer/>
     <AmHeader/>
     <AmToastContainer/>
@@ -22,6 +23,7 @@ import AmHeader from "@/components/Header/AmHeader.vue";
 import AmDrawer from "@/components/Drawer/AmDrawer.vue";
 import {computed} from "vue";
 import {useUserStore} from "@/stores/user.ts";
+import AmSearchBar from "@/components/SearchBar/AmSearchBar.vue";
 
 const user = useUserStore();
 const loader = useLoaderStore();

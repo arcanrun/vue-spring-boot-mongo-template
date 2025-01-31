@@ -8,7 +8,7 @@
     leave-class="opacity-100"
     leave-to-class="opacity-0"
   >
-    <div v-show="props.value" :class="classes">
+    <div v-if="props.value" :class="classes">
       <slot></slot>
       <div
         v-if="props.closeOverlayOnClick"
